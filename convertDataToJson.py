@@ -222,6 +222,6 @@ for key in dataDict:
 
 dataJson = json.dumps(dataDict)
 
-f = open("sport.json", "a")
+f = open("sport.json", "w")
 f.write(dataJson)
 f.close()
