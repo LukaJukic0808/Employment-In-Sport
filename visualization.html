@@ -120,7 +120,8 @@
         });
     
         function showInfo(element) {
-            console.log(dataJson[this.id]["2013"]["totalTH"]);
+            console.log(this.id)
+            console.log(dataJson[this.id][currentYear][currentSelectionFilter + currentSelectionUnit]);
         }
     
         function zoom(event) {
@@ -277,7 +278,6 @@
             year.text(this.value)
             currentYear = this.value
             updateBarChart();
-            showInfo(currentCountry)
         }
     </script>
 </body>
