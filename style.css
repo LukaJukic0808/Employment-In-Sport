@@ -1,0 +1,83 @@
+.page {
+    margin-top:20px;
+    margin-left:10px;
+    margin-right:10px;
+}
+
+.first-row {
+    display:flex;
+    flex-direction: row;
+    justify-content: start;
+}
+
+.settings {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content:start;
+}
+
+.options {
+    margin-top: 25px;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap:50px;
+}
+
+.overall {
+    margin-top: 25px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap:50px;
+}
+
+#total {
+    margin-top: 25px;
+}
+
+.unit {
+    display:flex;
+    flex-direction: row;
+    justify-content: start;
+    gap:10px;
+}
+
+.gender, .age, .education {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    gap: 15px;
+}
+
+.slider-row {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+    width:100%;
+}
+
+#slider {
+    width:65%;
+}
+
+h1, h4 {
+    text-align: center;
+}
+
+h4 {
+    font-size: 15px;
+}
+
+.chart-title, .xaxis, .yaxis {
+    font-weight: bold;
+}
+
+#play-pause-button {
+    margin-top:25px;
+}

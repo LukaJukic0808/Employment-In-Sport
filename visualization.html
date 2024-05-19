@@ -2,19 +2,85 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="http://d3js.org/d3.v7.min.js" charset="utf-8"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+    <link rel="stylesheet" href="style.css"> 
 </head>
 
-<body>
+<body style="background-color: #F9E4BC;">
+    <div class="page">
+        <div class="first-row">
+            <div class="map-container">
+            </div>
+            <div class="chart-container">
+            </div>
+            <div class="settings">
+                <h1 class="fw-bold">Employment in sport in Europe</h1>
+                <button type="button" class="btn btn-primary" value="play" id="play-pause-button">Play</button>
+                <div class="slider-row">
+                    <span class="fw-bold">2013</span>
+                    <input type="range" name="slider" id="slider" class="form-range" min="2013" max="2022" value="2013" autocomplete="off" steps="1">
+                    <span class="fw-bold">2022</span>
+                </div>
+                <p style="font-size: 30px" class="fw-bold">Year: <span id="year">2013</span><p>
+                <button type="button" class="btn btn-outline-primary filter-button" value="Total employment" id="total" onclick="updateFilterState(this)">TOTAL</button>
+                <div class="options">
+                    <div class="gender">
+                        <h4 class="fw-bold">By gender</h4>
+                        <button type="button" class="btn btn-primary filter-button" value="Male employment" id="male" onclick="updateFilterState(this)">Male</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="Female employment" id="female" onclick="updateFilterState(this)">Female</button>
+                    </div>
+                    <div class="education">
+                        <h4 class="fw-bold">By education level (ISCED 2011)</h4>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="Employment of people with primary education" id="primary" onclick="updateFilterState(this)">0-2</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="Employment of people with secondary education" id="secondary" onclick="updateFilterState(this)">3-4</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="Employment of people with tertiary education" id="tertiary" onclick="updateFilterState(this)">5-8</button>
+                    </div>
+                    <div class="age">
+                        <h4 class="fw-bold">By age</h4>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="People aged 15-29 employment" id="young" onclick="updateFilterState(this)">15-29</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="People aged 30-64 employment" id="middle" onclick="updateFilterState(this)">30-64</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="People aged 65+ employment" id="old" onclick="updateFilterState(this)">65+</button>
+                    </div>
+                </div>
+                <div class="overall">
+                    <div class="unit">
+                        <button type="button" class="btn btn-primary unit-button" id="TH" onclick="updateUnitState(this)">Thousands</button>
+                        <button type="button" class="btn btn-outline-primary unit-button" id="PR" onclick="updateUnitState(this)">Percentage</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="second-row">
+            <div class="graph1">
+            </div>
+            <div class="graph2">
+            </div>
+            <div class="graph3">
+            </div>
+        </div>
+    </div>
     <script>
-        var width = 960;
-        var height = 700;
+        var width = 650;
+        var height = 550;
+        var currentYear = "2013";
+        var currentCountry = "FR";
+        var currentSelectionFilter = "male"
+        var currentSelectionUnit = "TH"
+        var currentTitleString = "Male employment"
+        var loaded = 0;
+        var slider = d3.select("#slider").on("input", updateYear)
+        var year = d3.select("#year")
     
         var projection = d3.geoMercator()
-            .center([0, 48])
+            .center([7, 54])
             .translate([height/2, width/2])
-            .scale(530)
+            .scale(500)
             .rotate([0, 0]);
 
         var dataJson = null
@@ -26,28 +92,31 @@
         var path = d3.geoPath()
             .projection(projection);
     
-        var svg = d3.select("body").append("svg")
+        var mapSvg = d3.select(".map-container").append("svg")
             .attr("width", width)
             .attr("height", height)
-            .style("background", "black")
+            .style("background", "#F9E4BC")
             .call(d3.zoom().on("zoom", zoom))
             .append("g");
+
+        var chart = d3.select(".chart-container")
         
         d3.json("europe.topojson").then(function (europe) {
             var data = topojson.feature(europe, europe.objects.europe);
-            var states = svg.selectAll("path.county")
+            var states = mapSvg.selectAll("path.county")
                 .data(data.features)
                 .enter()
                 .append("path")
                 .attr("class", "county")
                 .attr("id", function (d) { return d.id; })
                 .attr("d", path)
-                .style("fill", "red")
-                .style("stroke", "gray")
-                .style("stroke-width", 0.1)
+                .style("fill", "blue")
+                .style("stroke", "yellow")
+                .style("stroke-width", 0.4)
                 .style("stroke-opacity", 1);
     
             states.on('click', showInfo);
+            updateBarChart()
         });
     
         function showInfo(element) {
@@ -55,7 +124,160 @@
         }
     
         function zoom(event) {
-            svg.attr("transform", event.transform);
+            mapSvg.attr("transform", event.transform);
+        }
+
+        function updateBarChart() {
+            var svg, xAxis, yAxis, title, xAxisLabel;
+            const width = 650;
+            const height = 550;
+            const marginTop = 30;
+            const marginRight = 30;
+            const marginBottom = 50;
+            const marginLeft = 95;
+
+            keys = Object.keys(dataJson)
+            var names = [];
+            var values = [];
+            keys.forEach(key => {
+                value = dataJson[key][currentYear][currentSelectionFilter + currentSelectionUnit]
+                name = dataJson[key]["name"]
+                if (value == null) {
+                    value = 0;
+                }
+                values.push({"name": name, "abbr": key, "value": value })
+                names.push(dataJson[key]["name"])
+            });
+
+            if (loaded == 0) {
+
+                svg = chart
+                    .append("svg")
+                    .attr("id", "chart")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .style("background", "#F9E4BC")
+
+                xAxis = svg
+                    .append("g")
+                    .attr("class", "xaxis")
+                    .attr("transform", `translate(0,${height - marginBottom})`);
+
+                yAxis = svg
+                    .append("g")
+                    .attr("class", "yaxis")
+                    .attr("transform", `translate(${marginLeft},0)`);
+
+                title = svg
+                    .append("text")
+                    .attr("class", "chart-title")
+                    .attr("transform", `translate(${(width / 2) + 20},15)`)
+                    .style("text-anchor", "middle")
+                    .attr("fill", "blue");
+                
+                xAxisLabel = svg // Added xAxisLabel
+                    .append("text")
+                    .attr("class", "x-axis-label")
+                    .attr("transform", `translate(${(width / 2) + 20},${height - marginBottom + 40})`)
+                    .style("text-anchor", "middle");
+
+                loaded = 1;
+            } else {
+                svg = d3.select("#chart");
+                xAxis = svg.select(".xaxis");
+                yAxis = svg.select(".yaxis");
+                title = svg.select(".chart-title");
+                xAxisLabel = svg.select(".x-axis-label");
+            }
+
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(values, function (d) { return d.value })])
+                .range([marginLeft, width - marginRight]);
+
+            const y = d3.scaleBand()
+                .domain(names)
+                .range([height - marginBottom , marginTop]).padding(0.25);
+
+            var formatType;
+            if(currentSelectionUnit === "TH") {
+                formatType = ".2s"
+                xAxisLabel.text("Thousands of people");
+            } else {
+                formatType = ".1f"
+                xAxisLabel.text("Percentage (%)");
+            }
+
+            xAxis
+                .transition()
+                .duration(500)
+                .call(d3.axisBottom(x).tickFormat(d3.format(formatType)));
+
+            yAxis.call(d3.axisLeft(y));
+
+            title.text(currentTitleString);
+
+            const rects = svg.selectAll("rect").data(values);
+
+            rects.join(
+                enter =>
+                    enter
+                        .append("rect")
+                        .attr("x", x.range()[0])
+                        .attr("y", (d) => y(d.name))
+                        .attr("height", y.bandwidth())
+                        .attr("fill", "blue")
+                        .attr("width", d => {
+                            return x(d.value) - x.range()[0];
+                        }),
+                update =>
+                    update
+                        .transition()
+                        .duration(600)
+                        .delay((d, i) => i * 10)
+                        .attr("width", d => {
+                            return x(d.value) - x.range()[0];
+                        }),
+                exit => exit.remove()
+            );
+        }
+
+        function updateFilterState(element) {
+            var buttons = document.querySelectorAll(".filter-button")
+            buttons.forEach(it => {
+                it.classList.remove("btn-outline-primary");
+                it.classList.remove("btn-primary");
+                if (it != element) {
+                    it.classList.add("btn-outline-primary");
+                } else {
+                    it.classList.add("btn-primary");
+                }
+            });
+            currentTitleString = element.value
+            currentSelectionFilter = element.id
+            updateBarChart();
+        }
+
+        function updateUnitState(element) {
+            var buttons = document.querySelectorAll(".unit-button")
+            buttons.forEach(it => {
+                it.classList.remove("btn-outline-primary");
+                it.classList.remove("btn-primary");
+                if (it != element) {
+                    it.classList.add("btn-outline-primary");
+                } else {
+                    it.classList.add("btn-primary");
+                }
+            });
+            currentSelectionUnit = element.id
+            updateBarChart();
+        }
+
+        function updateYear() {
+            year.text(this.value)
+            currentYear = this.value
+            updateBarChart();
+            showInfo(currentCountry)
         }
     </script>
 </body>
