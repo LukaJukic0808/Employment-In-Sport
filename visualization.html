@@ -143,11 +143,10 @@
             keys.forEach(key => {
                 value = dataJson[key][currentYear][currentSelectionFilter + currentSelectionUnit]
                 name = dataJson[key]["name"]
-                if (value == null) {
-                    value = 0;
+                if (value != null) {
+                    values.push({"name": name, "abbr": key, "value": value })
+                    names.push(dataJson[key]["name"])
                 }
-                values.push({"name": name, "abbr": key, "value": value })
-                names.push(dataJson[key]["name"])
             });
 
             if (loaded == 0) {
@@ -172,14 +171,14 @@
                 title = svg
                     .append("text")
                     .attr("class", "chart-title")
-                    .attr("transform", `translate(${(width / 2) + 20},15)`)
+                    .attr("transform", `translate(${(width / 2) + 24},15)`)
                     .style("text-anchor", "middle")
                     .attr("fill", "blue");
                 
-                xAxisLabel = svg // Added xAxisLabel
+                xAxisLabel = svg 
                     .append("text")
                     .attr("class", "x-axis-label")
-                    .attr("transform", `translate(${(width / 2) + 20},${height - marginBottom + 40})`)
+                    .attr("transform", `translate(${(width / 2) + 24},${height - marginBottom + 40})`)
                     .style("text-anchor", "middle");
 
                 loaded = 1;
@@ -236,6 +235,8 @@
                         .transition()
                         .duration(600)
                         .delay((d, i) => i * 10)
+                        .attr("y", d => y(d.name))
+                        .attr("height", y.bandwidth())
                         .attr("width", d => {
                             return x(d.value) - x.range()[0];
                         }),
