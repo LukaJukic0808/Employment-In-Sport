@@ -57,7 +57,7 @@
             </div>
         </div>
         <div class="second-row">
-            <div class="graph1">
+            <div class="line-chart">
             </div>
             <div class="graph2">
             </div>
@@ -73,7 +73,8 @@
         var currentSelectionFilter = "male"
         var currentSelectionUnit = "TH"
         var currentTitleString = "Male employment"
-        var loaded = 0;
+        var loadedBarChart = 0;
+        var loadedLineChart = 0;
         var slider = d3.select("#slider").on("input", updateYear)
         var year = d3.select("#year")
     
@@ -100,6 +101,7 @@
             .append("g");
 
         var chart = d3.select(".chart-container")
+        var lineChart = d3.select(".line-chart")
         
         d3.json("europe.topojson").then(function (europe) {
             var data = topojson.feature(europe, europe.objects.europe);
@@ -115,8 +117,9 @@
                 .style("stroke-width", 0.4)
                 .style("stroke-opacity", 1);
     
-            states.on('click', showInfo);
+            states.on('click', selectCountry);
             updateBarChart()
+            updateLineChart()
         });
     
         function showInfo(element) {
@@ -149,7 +152,7 @@
                 }
             });
 
-            if (loaded == 0) {
+            if (loadedBarChart == 0) {
 
                 svg = chart
                     .append("svg")
@@ -181,7 +184,7 @@
                     .attr("transform", `translate(${(width / 2) + 24},${height - marginBottom + 40})`)
                     .style("text-anchor", "middle");
 
-                loaded = 1;
+                loadedBarChart = 1;
             } else {
                 svg = d3.select("#chart");
                 xAxis = svg.select(".xaxis");
@@ -244,6 +247,104 @@
             );
         }
 
+        function updateLineChart() {
+            const width = 700;
+            const height = 330;
+            const marginTop = 20;
+            const marginRight = 30;
+            const marginBottom = 30;
+            const marginLeft = 40;
+
+            years = ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
+            var values = [];
+            years.forEach(year => {
+                value = dataJson[currentCountry][year][currentSelectionFilter + currentSelectionUnit]
+                values.push(value)
+            });
+
+            const x = d3.scaleBand()
+                .domain(years)
+                .range([marginLeft, width - marginRight]);
+
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(values)])
+                .range([height - marginBottom, marginTop]);
+
+            const line = d3.line()
+                .x((d, i) => x(years[i]) + x.bandwidth() / 2)
+                .y(d => y(d));
+            
+            if(loadedLineChart == 0) {
+                const svg = lineChart.append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("viewBox", [0, 0, width, height])
+                    .attr("style", "max-width: 100%; height: auto; height: intrinsic; background:#F9E4BC");
+
+                svg.append("g")
+                    .attr("transform", `translate(0,${height - marginBottom})`)
+                    .attr("class", "x-axis")
+                    .call(d3.axisBottom(x).ticks(width / 80).tickFormat(d3.format(".4")));
+
+                svg.append("g")
+                    .attr("transform", `translate(${marginLeft},0)`)
+                    .attr("class", "y-axis")
+                    .call(d3.axisLeft(y).ticks(height / 40).tickFormat(d3.format(".2s")))
+                    .call(g => g.select(".domain").remove())
+                    .call(g => g.selectAll(".tick line").clone()
+                        .attr("x2", width - marginLeft - marginRight)
+                        .attr("stroke-opacity", 0.1))
+                    .call(g => g.append("text")
+                        .attr("x", -marginLeft)
+                        .attr("y", 10)
+                        .attr("fill", "currentColor")
+                        .attr("text-anchor", "start")
+                        .text("Population"));
+
+                svg.append("path")
+                    .attr("class", "line")
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", 1.5)
+                    .attr("d", line(values));
+                
+                loadedLineChart = 1
+            } else {
+                // Select the existing SVG
+                svg = lineChart.select("svg")
+
+                // Update x-axis
+                svg.select(".x-axis")
+                    .call(d3.axisBottom(x).ticks(width / 80).tickFormat(d3.format(".4")));
+
+                // Update y-axis
+                svg.select(".y-axis")
+                    .call(d3.axisLeft(y).ticks(height / 40).tickFormat(d3.format(".2s")))
+                    .call(g => g.select(".domain").remove())
+                    .call(g => g.selectAll(".tick line").clone()
+                        .attr("x2", width - marginLeft - marginRight)
+                        .attr("stroke-opacity", 0.1))
+                    .call(g => g.append("text")
+                        .attr("x", -marginLeft)
+                        .attr("y", 10)
+                        .attr("fill", "currentColor")
+                        .attr("text-anchor", "start")
+                        .text("Population"));
+
+
+                svg.select(".line")
+                    .datum(values)
+                    .transition()
+                    .duration(750)
+                    .attr("d", line); 
+            }
+        }
+
+        function selectCountry(element) {
+            currentCountry = this.id
+            updateLineChart()
+        }
+
         function updateFilterState(element) {
             var buttons = document.querySelectorAll(".filter-button")
             buttons.forEach(it => {
@@ -258,6 +359,7 @@
             currentTitleString = element.value
             currentSelectionFilter = element.id
             updateBarChart();
+            updateLineChart();
         }
 
         function updateUnitState(element) {
@@ -273,6 +375,7 @@
             });
             currentSelectionUnit = element.id
             updateBarChart();
+            updateLineChart();
         }
 
         function updateYear() {

@@ -2,9 +2,11 @@
     margin-top:20px;
     margin-left:10px;
     margin-right:10px;
+    display:flex;
+    flex-direction: column;
 }
 
-.first-row {
+.first-row, .second-row {
     display:flex;
     flex-direction: row;
     justify-content: start;
