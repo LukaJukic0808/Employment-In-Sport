@@ -6,10 +6,15 @@
     <script src="http://d3js.org/d3.v7.min.js" charset="utf-8"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
-    <link rel="stylesheet" href="style.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body style="background-color: #F9E4BC;">
@@ -24,40 +29,60 @@
                 <button type="button" class="btn btn-primary" value="play" id="play-pause-button">Play</button>
                 <div class="slider-row">
                     <span class="fw-bold">2013</span>
-                    <input type="range" name="slider" id="slider" class="form-range" min="2013" max="2022" value="2013" autocomplete="off" steps="1">
+                    <input type="range" name="slider" id="slider" class="form-range" min="2013" max="2022" value="2013"
+                        autocomplete="off" steps="1">
                     <span class="fw-bold">2022</span>
                 </div>
-                <p style="font-size: 30px" class="fw-bold">Year: <span id="year">2013</span><p>
-                <button type="button" class="btn btn-outline-primary filter-button" value="Total employment" id="total" onclick="updateFilterState(this)">TOTAL</button>
+                <p style="font-size: 30px" class="fw-bold">Year: <span id="year">2013</span>
+                <p>
+                    <button type="button" class="btn btn-outline-primary filter-button" value="Total employment"
+                        id="total" onclick="updateFilterState(this)">TOTAL</button>
                 <div class="options">
                     <div class="gender">
                         <h4 class="fw-bold">By gender</h4>
-                        <button type="button" class="btn btn-primary filter-button" value="Male employment" id="male" onclick="updateFilterState(this)">Male</button>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="Female employment" id="female" onclick="updateFilterState(this)">Female</button>
+                        <button type="button" class="btn btn-primary filter-button" value="Male employment" id="male"
+                            onclick="updateFilterState(this)">Male</button>
+                        <button type="button" class="btn btn-outline-primary filter-button" value="Female employment"
+                            id="female" onclick="updateFilterState(this)">Female</button>
                     </div>
                     <div class="education">
                         <h4 class="fw-bold">By education level (ISCED 2011)</h4>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="Employment of people with primary education" id="primary" onclick="updateFilterState(this)">0-2</button>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="Employment of people with secondary education" id="secondary" onclick="updateFilterState(this)">3-4</button>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="Employment of people with tertiary education" id="tertiary" onclick="updateFilterState(this)">5-8</button>
+                        <button type="button" class="btn btn-outline-primary filter-button"
+                            value="Employment of people with primary education" id="primary"
+                            onclick="updateFilterState(this)">0-2</button>
+                        <button type="button" class="btn btn-outline-primary filter-button"
+                            value="Employment of people with secondary education" id="secondary"
+                            onclick="updateFilterState(this)">3-4</button>
+                        <button type="button" class="btn btn-outline-primary filter-button"
+                            value="Employment of people with tertiary education" id="tertiary"
+                            onclick="updateFilterState(this)">5-8</button>
                     </div>
                     <div class="age">
                         <h4 class="fw-bold">By age</h4>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="People aged 15-29 employment" id="young" onclick="updateFilterState(this)">15-29</button>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="People aged 30-64 employment" id="middle" onclick="updateFilterState(this)">30-64</button>
-                        <button type="button" class="btn btn-outline-primary filter-button" value="People aged 65+ employment" id="old" onclick="updateFilterState(this)">65+</button>
+                        <button type="button" class="btn btn-outline-primary filter-button"
+                            value="People aged 15-29 employment" id="young"
+                            onclick="updateFilterState(this)">15-29</button>
+                        <button type="button" class="btn btn-outline-primary filter-button"
+                            value="People aged 30-64 employment" id="middle"
+                            onclick="updateFilterState(this)">30-64</button>
+                        <button type="button" class="btn btn-outline-primary filter-button"
+                            value="People aged 65+ employment" id="old" onclick="updateFilterState(this)">65+</button>
                     </div>
                 </div>
                 <div class="overall">
                     <div class="unit">
-                        <button type="button" class="btn btn-primary unit-button" id="TH" onclick="updateUnitState(this)">Thousands</button>
-                        <button type="button" class="btn btn-outline-primary unit-button" id="PR" onclick="updateUnitState(this)">Percentage</button>
+                        <button type="button" class="btn btn-primary unit-button" id="TH"
+                            onclick="updateUnitState(this)">Thousands</button>
+                        <button type="button" class="btn btn-outline-primary unit-button" id="PR"
+                            onclick="updateUnitState(this)">Percentage</button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="second-row">
             <div class="line-chart">
+            </div>
+            <div class="line-chart-legend">
             </div>
             <div class="graph2">
             </div>
@@ -77,32 +102,36 @@
         var loadedLineChart = 0;
         var slider = d3.select("#slider").on("input", updateYear)
         var year = d3.select("#year")
-    
+        var formatType;
+        var paths;
+        let total = [{ "id": "total", "print": "Total" }]
+        let gender = [{ "id": "male", "print": "Male" }, { "id": "female", "print": "Female" }]
+        let education = [{ "id": "primary", "print": "0-2" }, { "id": "secondary", "print": "3-4" }, { "id": "tertiary", "print": "5-8" }]
+        let age = [{ "id": "young", "print": "15-29" }, { "id": "middle", "print": "30-64" }, { "id": "old", "print": "65+" }]
+        var currentGroup = { "print": "By gender", "data": gender }
+
         var projection = d3.geoMercator()
             .center([7, 54])
-            .translate([height/2, width/2])
+            .translate([height / 2, width / 2])
             .scale(500)
             .rotate([0, 0]);
 
         var dataJson = null
 
-        d3.json("sport.json").then(function(data) {
-            dataJson = data; 
-        })
-     
         var path = d3.geoPath()
             .projection(projection);
-    
+
         var mapSvg = d3.select(".map-container").append("svg")
             .attr("width", width)
             .attr("height", height)
             .style("background", "#F9E4BC")
+            .style("margin-bottom", "12px")
             .call(d3.zoom().on("zoom", zoom))
             .append("g");
 
         var chart = d3.select(".chart-container")
         var lineChart = d3.select(".line-chart")
-        
+
         d3.json("europe.topojson").then(function (europe) {
             var data = topojson.feature(europe, europe.objects.europe);
             var states = mapSvg.selectAll("path.county")
@@ -116,17 +145,20 @@
                 .style("stroke", "yellow")
                 .style("stroke-width", 0.4)
                 .style("stroke-opacity", 1);
-    
+
             states.on('click', selectCountry);
-            updateBarChart()
-            updateLineChart()
+            d3.json("sport.json").then(function (dataToLoad) {
+                dataJson = dataToLoad;
+                updateBarChart()
+                updateLineChart()
+            })
         });
-    
+
         function showInfo(element) {
             console.log(this.id)
             console.log(dataJson[this.id][currentYear][currentSelectionFilter + currentSelectionUnit]);
         }
-    
+
         function zoom(event) {
             mapSvg.attr("transform", event.transform);
         }
@@ -147,7 +179,7 @@
                 value = dataJson[key][currentYear][currentSelectionFilter + currentSelectionUnit]
                 name = dataJson[key]["name"]
                 if (value != null) {
-                    values.push({"name": name, "abbr": key, "value": value })
+                    values.push({ "name": name, "abbr": key, "value": value })
                     names.push(dataJson[key]["name"])
                 }
             });
@@ -177,8 +209,8 @@
                     .attr("transform", `translate(${(width / 2) + 24},15)`)
                     .style("text-anchor", "middle")
                     .attr("fill", "blue");
-                
-                xAxisLabel = svg 
+
+                xAxisLabel = svg
                     .append("text")
                     .attr("class", "x-axis-label")
                     .attr("transform", `translate(${(width / 2) + 24},${height - marginBottom + 40})`)
@@ -200,10 +232,9 @@
 
             const y = d3.scaleBand()
                 .domain(names)
-                .range([height - marginBottom , marginTop]).padding(0.25);
+                .range([height - marginBottom, marginTop]).padding(0.25);
 
-            var formatType;
-            if(currentSelectionUnit === "TH") {
+            if (currentSelectionUnit === "TH") {
                 formatType = ".2s"
                 xAxisLabel.text("Thousands of people");
             } else {
@@ -248,95 +279,182 @@
         }
 
         function updateLineChart() {
+            var svg, xAxis, yAxis, title, unitText, lineUnit;
+            var groupIterator = 0;
             const width = 700;
             const height = 330;
-            const marginTop = 20;
+            const marginTop = 30;
             const marginRight = 30;
             const marginBottom = 30;
             const marginLeft = 40;
+            var colors = ["red", "green", "blue"]
+            var showLegend = [false, false, false]
 
             years = ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
-            var values = [];
-            years.forEach(year => {
-                value = dataJson[currentCountry][year][currentSelectionFilter + currentSelectionUnit]
-                values.push(value)
+            var valuesCombinded = [];
+
+            currentGroup["data"].forEach(group => {
+                var values = []
+                years.forEach(year => {
+                    value = dataJson[currentCountry][year][group["id"] + currentSelectionUnit]
+                    if (value != null) {
+                        values.push({ "year": year, "value": value })
+                    }
+                });
+                valuesCombinded.push(values)
+                if(values.length > 1){
+                    showLegend[groupIterator] = true
+                }
+                groupIterator += 1
             });
 
-            const x = d3.scaleBand()
-                .domain(years)
-                .range([marginLeft, width - marginRight]);
+            if (currentSelectionUnit === "TH") {
+                unitText = "Thousands"
+                formatType = ".2s"
+            } else {
+                unitText = "Percentage (%)"
+                formatType = ".1f"
+            }
 
-            const y = d3.scaleLinear()
-                .domain([0, d3.max(values)])
-                .range([height - marginBottom, marginTop]);
-
-            const line = d3.line()
-                .x((d, i) => x(years[i]) + x.bandwidth() / 2)
-                .y(d => y(d));
-            
-            if(loadedLineChart == 0) {
-                const svg = lineChart.append("svg")
+            if (loadedLineChart == 0) {
+                svg = lineChart.append("svg")
                     .attr("width", width)
                     .attr("height", height)
                     .attr("viewBox", [0, 0, width, height])
                     .attr("style", "max-width: 100%; height: auto; height: intrinsic; background:#F9E4BC");
 
-                svg.append("g")
+                xAxis = svg.append("g")
                     .attr("transform", `translate(0,${height - marginBottom})`)
-                    .attr("class", "x-axis")
-                    .call(d3.axisBottom(x).ticks(width / 80).tickFormat(d3.format(".4")));
+                    .attr("class", "line-x-axis")
 
-                svg.append("g")
+                yAxis = svg.append("g")
                     .attr("transform", `translate(${marginLeft},0)`)
-                    .attr("class", "y-axis")
-                    .call(d3.axisLeft(y).ticks(height / 40).tickFormat(d3.format(".2s")))
+                    .attr("class", "line-y-axis")
                     .call(g => g.select(".domain").remove())
                     .call(g => g.selectAll(".tick line").clone()
                         .attr("x2", width - marginLeft - marginRight)
                         .attr("stroke-opacity", 0.1))
-                    .call(g => g.append("text")
-                        .attr("x", -marginLeft)
-                        .attr("y", 10)
-                        .attr("fill", "currentColor")
-                        .attr("text-anchor", "start")
-                        .text("Population"));
 
-                svg.append("path")
-                    .attr("class", "line")
-                    .attr("fill", "none")
-                    .attr("stroke", "steelblue")
-                    .attr("stroke-width", 1.5)
-                    .attr("d", line(values));
-                
+                unit = yAxis.call(g => g.append("text")
+                    .attr("x", -(marginLeft - 10))
+                    .attr("y", 10)
+                    .attr("id", "line-unit")
+                    .attr("fill", "black")
+                    .attr("text-anchor", "start")
+                    .text(unitText))
+
+                lineUnit = d3.select("#line-unit")
+
+                title = svg
+                    .append("text")
+                    .attr("class", "line_chart_title")
+                    .attr("transform", `translate(${width / 2},15)`)
+                    .style("text-anchor", "middle")
+                    .style("font-weight", "bold")
+                    .attr("fill", "blue");
+
+                paths = []
+
+                for (let i = 0; i < currentGroup["data"].length; i++) {
+                    paths.push(
+                        svg.append("path")
+                            .attr("class", "line")
+                            .attr("fill", "none")
+                            .attr("stroke", colors[i])
+                            .attr("stroke-width", 3)
+                    )
+                }
+
                 loadedLineChart = 1
             } else {
-                // Select the existing SVG
                 svg = lineChart.select("svg")
+                lineUnit = d3.select("#line-unit")
+                xAxis = svg.select(".line-x-axis")
+                yAxis = svg.select(".line-y-axis")
+                title = svg.select(".line_chart_title")
+                svg.select(".grid-lines").remove()
+            }
 
-                // Update x-axis
-                svg.select(".x-axis")
-                    .call(d3.axisBottom(x).ticks(width / 80).tickFormat(d3.format(".4")));
+            if (currentGroup["data"].length < paths.length) {
+                var pathsLength = paths.length
+                for (let i = 0; i < (pathsLength - currentGroup["data"].length); i++) {
+                    paths[pathsLength - 1 - i].remove()
+                    paths.pop()
+                }
+            } else if (paths.length < currentGroup["data"].length) {
+                var pathsLength = paths.length
+                for (let i = 0; i < (currentGroup["data"].length - pathsLength); i++) {
+                    paths.push(
+                        svg.append("path")
+                            .attr("class", "line")
+                            .attr("fill", "none")
+                            .attr("stroke", colors[pathsLength + i])
+                            .attr("stroke-width", 3)
+                    )
+                }
+            }
 
-                // Update y-axis
-                svg.select(".y-axis")
-                    .call(d3.axisLeft(y).ticks(height / 40).tickFormat(d3.format(".2s")))
-                    .call(g => g.select(".domain").remove())
-                    .call(g => g.selectAll(".tick line").clone()
-                        .attr("x2", width - marginLeft - marginRight)
-                        .attr("stroke-opacity", 0.1))
-                    .call(g => g.append("text")
-                        .attr("x", -marginLeft)
-                        .attr("y", 10)
-                        .attr("fill", "currentColor")
-                        .attr("text-anchor", "start")
-                        .text("Population"));
+            const x = d3.scaleUtc(d3.extent(years), [marginLeft, width - marginRight]);
 
+            var y;
 
-                svg.select(".line")
-                    .datum(values)
-                    .transition()
+            if (false) { // values.length == 0 TO DO
+                y = d3.scaleLinear()
+                    .domain([0, 10])
+                    .range([height - marginBottom, marginTop]);
+            } else {
+                y = d3.scaleLinear()
+                    .domain([0, d3.max(valuesCombinded, function (values) {
+                        return d3.max(values, function (d) { return d.value })
+                    })])
+                    .range([height - marginBottom, marginTop]);
+            }
+
+            lineUnit.text(unitText)
+            title.text(currentGroup["print"] + " in " + dataJson[currentCountry]["name"])
+
+            yGrid = (g) => g
+                .attr('class', 'grid-lines')
+                .selectAll('line')
+                .data(y.ticks())
+                .join('line')
+                .attr('x1', marginLeft)
+                .attr('x2', width - marginRight)
+                .attr('y1', d => y(d))
+                .attr('y2', d => y(d))
+                .attr("stroke", "#000000")
+                .attr("stroke-opacity", 0.25)
+
+            xAxis.call(d3.axisBottom(x).ticks(width / 80).tickFormat(d3.format(".4")));
+
+            yAxis.call(d3.axisLeft(y).ticks(height / 40).tickFormat(d3.format(formatType)))
+
+            svg.append('g').call(yGrid)
+
+            const line = d3.line()
+                .x((d) => x(d.year))
+                .y(d => y(d.value));
+
+            for(let i=0; i<showLegend.length; i++) {
+                d3.select(".color-line-chart-" + i).remove()
+            }
+
+            for (let i = 0; i < currentGroup["data"].length; i++) {
+                paths[i].transition()
                     .duration(750)
-                    .attr("d", line); 
+                    .attr("d", line(valuesCombinded[i]));
+                if (showLegend[i]) {
+                    var colorContainer = d3.select(".line-chart-legend")
+                        .append("div")
+                        .attr("class", "color-line-chart-" + i)
+                    colorContainer.append("div")
+                        .attr("style", "height: 10px; width: 10px; background-color: " + colors[i])
+                    colorContainer.append("div")
+                        .attr("class", "color-text-" + i)
+                        .text(currentGroup["data"][i]["print"])
+                } else {
+                    d3.select(".color-line-chart-" + i).remove()
+                }
             }
         }
 
@@ -358,6 +476,33 @@
             });
             currentTitleString = element.value
             currentSelectionFilter = element.id
+
+            switch (currentSelectionFilter) {
+                case "male":
+                case "female":
+                    currentGroup["print"] = "By gender"
+                    currentGroup["data"] = gender
+                    break;
+
+                case "young":
+                case "middle":
+                case "old":
+                    currentGroup["print"] = "By age"
+                    currentGroup["data"] = age
+                    break;
+
+                case "primary":
+                case "secondary":
+                case "tertiary":
+                    currentGroup["print"] = "By education level"
+                    currentGroup["data"] = education
+                    break;
+
+                default:
+                    currentGroup["print"] = "Total"
+                    currentGroup["data"] = total
+            }
+
             updateBarChart();
             updateLineChart();
         }

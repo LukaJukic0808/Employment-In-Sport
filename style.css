@@ -12,6 +12,20 @@
     justify-content: start;
 }
 
+.line-chart-legend {
+    display:flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+}
+
+.color-line-chart-0, .color-line-chart-1, .color-line-chart-2 {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    font-weight: bold;
+}
+
 .settings {
     display:flex;
     flex-direction: column;
@@ -76,7 +90,7 @@ h4 {
     font-size: 15px;
 }
 
-.chart-title, .xaxis, .yaxis {
+.chart-title, .xaxis, .yaxis, .line-x-axis, .line-y-axis {
     font-weight: bold;
 }
 
