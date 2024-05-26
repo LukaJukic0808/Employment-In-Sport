@@ -523,6 +523,31 @@
             updateLineChart();
         }
 
+        var intervalId;
+        var isPlaying = false;
+        var playPauseButton = d3.select("#play-pause-button");
+
+        playPauseButton.on("click", function() {
+            if (isPlaying) {
+                clearInterval(intervalId);
+                playPauseButton.text("Play");
+                playPauseButton.attr("class", "btn btn-primary")
+            } else {
+                intervalId = setInterval(function() {
+                    var currentValue = +slider.node().value;
+                    if (currentValue < +slider.attr("max")) {
+                        slider.node().value = currentValue + 1;
+                    } else {
+                        slider.node().value = slider.attr("min");
+                    }
+                    updateYear.call(slider.node());
+                }, 1500);
+                playPauseButton.text("Pause");
+                playPauseButton.attr("class", "btn btn-danger")
+            }
+            isPlaying = !isPlaying;
+        });
+
         function updateYear() {
             year.text(this.value)
             currentYear = this.value
