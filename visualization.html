@@ -109,6 +109,7 @@
         let education = [{ "id": "primary", "print": "0-2" }, { "id": "secondary", "print": "3-4" }, { "id": "tertiary", "print": "5-8" }]
         let age = [{ "id": "young", "print": "15-29" }, { "id": "middle", "print": "30-64" }, { "id": "old", "print": "65+" }]
         var currentGroup = { "print": "By gender", "data": gender }
+        var sort = "desc"
 
         var projection = d3.geoMercator()
             .center([7, 54])
@@ -166,7 +167,7 @@
         function updateBarChart() {
             var svg, xAxis, yAxis, title, xAxisLabel;
             const width = 650;
-            const height = 550;
+            const height = 518;
             const marginTop = 30;
             const marginRight = 30;
             const marginBottom = 50;
@@ -180,9 +181,15 @@
                 name = dataJson[key]["name"]
                 if (value != null) {
                     values.push({ "name": name, "abbr": key, "value": value })
-                    names.push(dataJson[key]["name"])
                 }
             });
+
+            if(sort == "desc") {
+                values.sort((a, b) => a.value - b.value); 
+            } else {
+                values.sort((a, b) => b.value - a.value);
+            }
+            names = values.map(item => item.name);
 
             if (loadedBarChart == 0) {
 
@@ -215,6 +222,39 @@
                     .attr("class", "x-axis-label")
                     .attr("transform", `translate(${(width / 2) + 24},${height - marginBottom + 40})`)
                     .style("text-anchor", "middle");
+
+                var buttonContainer = chart.append("div")
+                    .attr("id", "button-container")
+                    .style("position", "relative")
+                    .style("bottom", "10px")
+                    .style("right", "10px");
+
+                buttonContainer.append("button")
+                    .attr("id", "asc")
+                    .text("Ascending")
+                    .attr("class", "btn btn-outline-primary")
+                    .on("click", function() {
+                        if(sort === "desc") {
+                            sort = "asc";
+                            d3.select("#asc").attr("class", "btn btn-primary");
+                            d3.select("#desc").attr("class", "btn btn-outline-primary");
+                            updateBarChart();
+                        }
+                    });
+
+                buttonContainer.append("button")
+                    .attr("id", "desc")
+                    .text("Descending")
+                    .attr("class", "btn btn-primary")
+                    .style("margin-left", "5px")
+                    .on("click", function() {
+                        if(sort === "asc") {
+                            sort = "desc";
+                            d3.select("#asc").attr("class", "btn btn-outline-primary");
+                            d3.select("#desc").attr("class", "btn btn-primary");
+                            updateBarChart();
+                        }
+                    });
 
                 loadedBarChart = 1;
             } else {
