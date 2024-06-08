@@ -101,6 +101,13 @@ h4 {
 #button-container {
     display: flex;
     flex-direction: row;
-    justify-content: end;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 8px;
+}
+
+.btn-over-svg {
+    position: absolute;
+    top: 20px; 
+    left: 10px; 
 }

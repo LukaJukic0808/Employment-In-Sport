@@ -21,6 +21,7 @@
     <div class="page">
         <div class="first-row">
             <div class="map-container">
+                <button class="btn btn-outline-primary btn-over-svg" id="euDataButton" onclick="onEUDataClick(this)">EU data</button>
             </div>
             <div class="chart-container">
             </div>
@@ -110,6 +111,7 @@
         let age = [{ "id": "young", "print": "15-29" }, { "id": "middle", "print": "30-64" }, { "id": "old", "print": "65+" }]
         var currentGroup = { "print": "By gender", "data": gender }
         var sort = "desc"
+        var euSwitch = true
 
         var projection = d3.geoMercator()
             .center([7, 54])
@@ -177,6 +179,11 @@
             var names = [];
             var values = [];
             keys.forEach(key => {
+                if(!euSwitch) {
+                    if(key == "EU27_2020") {
+                        return;
+                    }
+                }
                 value = dataJson[key][currentYear][currentSelectionFilter + currentSelectionUnit]
                 name = dataJson[key]["name"]
                 if (value != null) {
@@ -184,8 +191,8 @@
                 }
             });
 
-            if(sort == "desc") {
-                values.sort((a, b) => a.value - b.value); 
+            if (sort == "desc") {
+                values.sort((a, b) => a.value - b.value);
             } else {
                 values.sort((a, b) => b.value - a.value);
             }
@@ -229,12 +236,34 @@
                     .style("bottom", "10px")
                     .style("right", "10px");
 
-                buttonContainer.append("button")
+                var switchContainer = buttonContainer.append("div")
+                    .attr("class", "form-check form-switch")
+                    .style("margin-left", "60px");
+
+                switchContainer.append("input")
+                    .attr("class", "form-check-input")
+                    .attr("type", "checkbox")
+                    .attr("id", "euSwitch")
+                    .attr("checked", true)
+                    .on("change", function () {
+                        euSwitch = d3.select(this).property("checked");
+                        updateBarChart();
+                    });
+
+                switchContainer.append("label")
+                    .attr("class", "form-check-label text-primary")
+                    .attr("for", "euSwitch")
+                    .text("Include EU")
+                    .style("font-weight", "bold")
+                
+                var sortContainer = buttonContainer.append("div")
+
+                sortContainer.append("button")
                     .attr("id", "asc")
                     .text("Ascending")
                     .attr("class", "btn btn-outline-primary")
-                    .on("click", function() {
-                        if(sort === "desc") {
+                    .on("click", function () {
+                        if (sort === "desc") {
                             sort = "asc";
                             d3.select("#asc").attr("class", "btn btn-primary");
                             d3.select("#desc").attr("class", "btn btn-outline-primary");
@@ -242,13 +271,13 @@
                         }
                     });
 
-                buttonContainer.append("button")
+                sortContainer.append("button")
                     .attr("id", "desc")
                     .text("Descending")
                     .attr("class", "btn btn-primary")
                     .style("margin-left", "5px")
-                    .on("click", function() {
-                        if(sort === "asc") {
+                    .on("click", function () {
+                        if (sort === "asc") {
                             sort = "desc";
                             d3.select("#asc").attr("class", "btn btn-outline-primary");
                             d3.select("#desc").attr("class", "btn btn-primary");
@@ -342,7 +371,7 @@
                     }
                 });
                 valuesCombinded.push(values)
-                if(values.length > 1){
+                if (values.length > 1) {
                     showLegend[groupIterator] = true
                 }
                 groupIterator += 1
@@ -475,7 +504,7 @@
                 .x((d) => x(d.year))
                 .y(d => y(d.value));
 
-            for(let i=0; i<showLegend.length; i++) {
+            for (let i = 0; i < showLegend.length; i++) {
                 d3.select(".color-line-chart-" + i).remove()
             }
 
@@ -500,6 +529,9 @@
 
         function selectCountry(element) {
             currentCountry = this.id
+            var euDataBtn = document.getElementById("euDataButton")
+            euDataBtn.classList.remove("btn-danger")
+            euDataBtn.classList.add("btn-outline-primary")
             updateLineChart()
         }
 
@@ -567,13 +599,13 @@
         var isPlaying = false;
         var playPauseButton = d3.select("#play-pause-button");
 
-        playPauseButton.on("click", function() {
+        playPauseButton.on("click", function () {
             if (isPlaying) {
                 clearInterval(intervalId);
                 playPauseButton.text("Play");
                 playPauseButton.attr("class", "btn btn-primary")
             } else {
-                intervalId = setInterval(function() {
+                intervalId = setInterval(function () {
                     var currentValue = +slider.node().value;
                     if (currentValue < +slider.attr("max")) {
                         slider.node().value = currentValue + 1;
@@ -592,6 +624,13 @@
             year.text(this.value)
             currentYear = this.value
             updateBarChart();
+        }
+
+        function onEUDataClick(element) {
+            element.classList.remove("btn-outline-primary")
+            element.classList.add("btn-danger")
+            currentCountry = "EU27_2020"
+            updateLineChart()
         }
     </script>
 </body>
