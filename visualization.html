@@ -94,6 +94,7 @@
         </div>
     </div>
     <div id="mapMouseText">Placeholder</div>
+    <div id="barMouseText">Placeholder</div>
     <script>
         var width = 650;
         var height = 550;
@@ -336,6 +337,28 @@
                         .attr("fill", d => d.abbr === currentCountry ? "#DC3545" : "blue")
                         .attr("width", d => {
                             return x(d.value) - x.range()[0];
+                        })
+                        .on("mouseover", function (event, d) {
+                            d3.select(this)
+                                .style("fill", "orange");
+                            d3.select("#barMouseText")
+                                .style("left", (event.pageX + 5) + "px")
+                                .style("top", (event.pageY - 35) + "px")
+                                .transition()
+                                .duration(200)
+                                .style("opacity", 1);
+                            d3.select("#barMouseText").html(d.value);
+                        })
+                        .on("mouseout", function (event, d) {
+                            if (d.abbr === currentCountry) {
+                                d3.select(this).style("fill", "#DC3545");
+                            } else {
+                                d3.select(this).style("fill", "blue")
+                            }
+                            d3.select("#barMouseText")
+                                .transition()
+                                .duration(500)
+                                .style("opacity", 0);
                         }),
                 update =>
                     update

@@ -122,3 +122,16 @@ h4 {
     background: #DC3545;
     display: none;
 }
+
+#barMouseText {
+    position: absolute; 
+    height: 32px; 
+    padding: 3px;
+    color: white;
+    border: #DC3545 2px solid;
+    border-radius: 2px;
+    background: #DC3545; 
+    border-radius: 2px; 
+    pointer-events: none; 
+    opacity: 0;
+}
