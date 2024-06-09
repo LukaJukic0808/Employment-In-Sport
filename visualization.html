@@ -15,13 +15,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
     <link rel="stylesheet" href="style.css">
+    <title>Employment in Sport</title>
 </head>
 
 <body style="background-color: #F9E4BC;">
     <div class="page">
         <div class="first-row">
             <div class="map-container">
-                <button class="btn btn-outline-primary btn-over-svg" id="euDataButton" onclick="onEUDataClick(this)">EU data</button>
+                <button class="btn btn-outline-primary btn-over-svg" id="euDataButton"
+                    onclick="onEUDataClick(this)">European Union</button>
             </div>
             <div class="chart-container">
             </div>
@@ -91,11 +93,13 @@
             </div>
         </div>
     </div>
+    <div id="mapMouseText">Placeholder</div>
     <script>
         var width = 650;
         var height = 550;
         var currentYear = "2013";
         var currentCountry = "FR";
+        var mapMouseText = d3.select("#mapMouseText");
         var currentSelectionFilter = "male"
         var currentSelectionUnit = "TH"
         var currentTitleString = "Male employment"
@@ -149,18 +153,17 @@
                 .style("stroke-width", 0.4)
                 .style("stroke-opacity", 1);
 
-            states.on('click', selectCountry);
+            d3.select("#" + currentCountry).style("fill", "#DC3545")
+            states.on('click', selectCountry)
+            states.on('mouseover', showInfo)
+            states.on('mouseout', removeInfo)
+            states.on('mousemove', updateInfo)
             d3.json("sport.json").then(function (dataToLoad) {
                 dataJson = dataToLoad;
                 updateBarChart()
                 updateLineChart()
             })
         });
-
-        function showInfo(element) {
-            console.log(this.id)
-            console.log(dataJson[this.id][currentYear][currentSelectionFilter + currentSelectionUnit]);
-        }
 
         function zoom(event) {
             mapSvg.attr("transform", event.transform);
@@ -179,8 +182,8 @@
             var names = [];
             var values = [];
             keys.forEach(key => {
-                if(!euSwitch) {
-                    if(key == "EU27_2020") {
+                if (!euSwitch) {
+                    if (key == "EU27_2020") {
                         return;
                     }
                 }
@@ -255,7 +258,7 @@
                     .attr("for", "euSwitch")
                     .text("Include EU")
                     .style("font-weight", "bold")
-                
+
                 var sortContainer = buttonContainer.append("div")
 
                 sortContainer.append("button")
@@ -328,8 +331,9 @@
                         .append("rect")
                         .attr("x", x.range()[0])
                         .attr("y", (d) => y(d.name))
+                        .attr("id", (d) => d.abbr + "_bar")
                         .attr("height", y.bandwidth())
-                        .attr("fill", "blue")
+                        .attr("fill", d => d.abbr === currentCountry ? "#DC3545" : "blue")
                         .attr("width", d => {
                             return x(d.value) - x.range()[0];
                         }),
@@ -339,12 +343,21 @@
                         .duration(600)
                         .delay((d, i) => i * 10)
                         .attr("y", d => y(d.name))
+                        .attr("id", (d) => d.abbr + "_bar")
                         .attr("height", y.bandwidth())
                         .attr("width", d => {
                             return x(d.value) - x.range()[0];
+                        })
+                        .on('start', function (d) {
+                            if (d.abbr === currentCountry) {
+                                d3.select(this).style("fill", "#DC3545");
+                            } else {
+                                d3.select(this).style("fill", "blue")
+                            }
                         }),
                 exit => exit.remove()
             );
+            d3.select("#" + currentCountry + "_bar").style("fill", "#DC3545");
         }
 
         function updateLineChart() {
@@ -358,6 +371,7 @@
             const marginLeft = 40;
             var colors = ["red", "green", "blue"]
             var showLegend = [false, false, false]
+            var hasSomethingToShow = false
 
             years = ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"]
             var valuesCombinded = [];
@@ -373,6 +387,7 @@
                 valuesCombinded.push(values)
                 if (values.length > 1) {
                     showLegend[groupIterator] = true
+                    hasSomethingToShow = true
                 }
                 groupIterator += 1
             });
@@ -467,7 +482,7 @@
 
             var y;
 
-            if (false) { // values.length == 0 TO DO
+            if (!hasSomethingToShow) {
                 y = d3.scaleLinear()
                     .domain([0, 10])
                     .range([height - marginBottom, marginTop]);
@@ -528,11 +543,17 @@
         }
 
         function selectCountry(element) {
-            currentCountry = this.id
-            var euDataBtn = document.getElementById("euDataButton")
-            euDataBtn.classList.remove("btn-danger")
-            euDataBtn.classList.add("btn-outline-primary")
-            updateLineChart()
+            if (dataJson[this.id] != undefined) {
+                d3.select("#" + currentCountry).style("fill", "blue")
+                d3.select("#" + currentCountry + "_bar").style("fill", "blue")
+                currentCountry = this.id
+                d3.select("#" + currentCountry).style("fill", "#DC3545")
+                d3.select("#" + currentCountry + "_bar").style("fill", "#DC3545")
+                var euDataBtn = document.getElementById("euDataButton")
+                euDataBtn.classList.remove("btn-danger")
+                euDataBtn.classList.add("btn-outline-primary")
+                updateLineChart()
+            }
         }
 
         function updateFilterState(element) {
@@ -613,7 +634,7 @@
                         slider.node().value = slider.attr("min");
                     }
                     updateYear.call(slider.node());
-                }, 1500);
+                }, 2000);
                 playPauseButton.text("Pause");
                 playPauseButton.attr("class", "btn btn-danger")
             }
@@ -627,10 +648,33 @@
         }
 
         function onEUDataClick(element) {
+            d3.select("#" + currentCountry).style("fill", "blue")
             element.classList.remove("btn-outline-primary")
             element.classList.add("btn-danger")
+            d3.select("#" + currentCountry + "_bar").style("fill", "blue")
             currentCountry = "EU27_2020"
+            d3.select("#" + currentCountry + "_bar").style("fill", "#DC3545")
             updateLineChart()
+        }
+
+        function showInfo(event) {
+            if (dataJson[this.id] == undefined) {
+                mapMouseText.text("Data for this country is unavailable")
+            } else {
+                mapMouseText.text(dataJson[this.id]["name"])
+            }
+            mapMouseText.style("left", event.clientX + window.scrollX + "px")
+            mapMouseText.style("top", event.clientY + 50 + window.scrollY + "px")
+            mapMouseText.style("display", "block")
+        }
+
+        function removeInfo(event) {
+            mapMouseText.style("display", "none")
+        }
+
+        function updateInfo(event) {
+            mapMouseText.style("left", event.clientX + window.scrollX + "px")
+            mapMouseText.style("top", event.clientY - 40 + window.scrollY + "px")
         }
     </script>
 </body>
