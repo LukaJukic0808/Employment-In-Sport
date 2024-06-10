@@ -95,12 +95,14 @@
     </div>
     <div id="mapMouseText">Placeholder</div>
     <div id="barMouseText">Placeholder</div>
+    <div id="lineMouseText">Placeholder</div>
     <script>
         var width = 650;
         var height = 550;
         var currentYear = "2013";
         var currentCountry = "FR";
         var mapMouseText = d3.select("#mapMouseText");
+        var lineMouseText = d3.select("#lineMouseText");
         var currentSelectionFilter = "male"
         var currentSelectionUnit = "TH"
         var currentTitleString = "Male employment"
@@ -119,9 +121,9 @@
         var euSwitch = true
 
         var projection = d3.geoMercator()
-            .center([7, 54])
+            .center([7, 52])
             .translate([height / 2, width / 2])
-            .scale(500)
+            .scale(480)
             .rotate([0, 0]);
 
         var dataJson = null
@@ -163,6 +165,7 @@
                 dataJson = dataToLoad;
                 updateBarChart()
                 updateLineChart()
+                states.style("cursor", function (d) { return (dataJson[d.id] == undefined ? "default" : "pointer") });
             })
         });
 
@@ -249,6 +252,7 @@
                     .attr("type", "checkbox")
                     .attr("id", "euSwitch")
                     .attr("checked", true)
+                    .style("cursor", "pointer")
                     .on("change", function () {
                         euSwitch = d3.select(this).property("checked");
                         updateBarChart();
@@ -331,12 +335,36 @@
                     enter
                         .append("rect")
                         .attr("x", x.range()[0])
+                        .attr("style", "cursor:pointer")
                         .attr("y", (d) => y(d.name))
                         .attr("id", (d) => d.abbr + "_bar")
                         .attr("height", y.bandwidth())
                         .attr("fill", d => d.abbr === currentCountry ? "#DC3545" : "blue")
                         .attr("width", d => {
                             return x(d.value) - x.range()[0];
+                        })
+                        .on("click", function (event, d) {
+                            var selectedBarCountry = this.id.slice(0, 2)
+                            if (!(selectedBarCountry === currentCountry.slice(0, 2))) {
+                                d3.select("#" + currentCountry).style("fill", "blue")
+                                d3.select("#" + currentCountry + "_bar").style("fill", "blue")
+                                if (selectedBarCountry === "EU") {
+                                    var euDataBtn = document.getElementById("euDataButton")
+                                    euDataBtn.classList.remove("btn-outline-primary")
+                                    euDataBtn.classList.add("btn-danger")
+                                    currentCountry = "EU27_2020"
+                                } else {
+                                    var previousCurrentCountry = currentCountry
+                                    currentCountry = selectedBarCountry
+                                    d3.select("#" + currentCountry).style("fill", "#DC3545")
+                                    if (previousCurrentCountry === "EU27_2020") {
+                                        var euDataBtn = document.getElementById("euDataButton")
+                                        euDataBtn.classList.remove("btn-danger")
+                                        euDataBtn.classList.add("btn-outline-primary")
+                                    }
+                                }
+                                updateLineChart()
+                            }
                         })
                         .on("mouseover", function (event, d) {
                             d3.select(this)
@@ -407,11 +435,13 @@
                         values.push({ "year": year, "value": value })
                     }
                 });
-                valuesCombinded.push(values)
                 if (values.length > 1) {
                     showLegend[groupIterator] = true
                     hasSomethingToShow = true
+                } else {
+                    values = []
                 }
+                valuesCombinded.push(values)
                 groupIterator += 1
             });
 
@@ -421,6 +451,22 @@
             } else {
                 unitText = "Percentage (%)"
                 formatType = ".1f"
+            }
+
+            const x = d3.scaleUtc(d3.extent(years), [marginLeft, width - marginRight]);
+
+            var y;
+
+            if (!hasSomethingToShow) {
+                y = d3.scaleLinear()
+                    .domain([0, 10])
+                    .range([height - marginBottom, marginTop]);
+            } else {
+                y = d3.scaleLinear()
+                    .domain([0, d3.max(valuesCombinded, function (values) {
+                        return d3.max(values, function (d) { return d.value })
+                    })])
+                    .range([height - marginBottom, marginTop]);
             }
 
             if (loadedLineChart == 0) {
@@ -472,7 +518,43 @@
                     )
                 }
 
+                for (let i = 0; i < currentGroup["data"].length; i++) {
+                    svg.append("g")
+                        .attr("class", "circle-group-" + i)
+                        .selectAll("circle")
+                        .data(valuesCombinded[i])
+                        .enter()
+                        .append("circle")
+                        .attr("r", 5)
+                        .attr("fill", colors[i])
+                        .attr("stroke", "black")
+                        .attr("cx", d => x(d.year))
+                        .attr("cy", d => y(d.value))
+                        .style("display", "none")
+                        .style("cursor", "context-menu")
+                        .on("mouseover", function (event, d) {
+                            d3.select("#lineMouseText")
+                                .style("left", (event.pageX + 5) + "px")
+                                .style("top", (event.pageY - 35) + "px")
+                                .style("opacity", "1")
+                                .style("background-color", colors[i])
+                                .html(d.value);
+                        })
+                        .on("mouseout", function (event, d) {
+                            d3.select("#lineMouseText")
+                                .style("opacity", "0");
+                        });
+                }
+
+                svg.on("mouseenter", function () {
+                    svg.selectAll("circle").style("display", "block");
+                })
+                svg.on("mouseleave", function () {
+                    svg.selectAll("circle").style("display", "none");
+                })
+
                 loadedLineChart = 1
+
             } else {
                 svg = lineChart.select("svg")
                 lineUnit = d3.select("#line-unit")
@@ -499,22 +581,6 @@
                             .attr("stroke-width", 3)
                     )
                 }
-            }
-
-            const x = d3.scaleUtc(d3.extent(years), [marginLeft, width - marginRight]);
-
-            var y;
-
-            if (!hasSomethingToShow) {
-                y = d3.scaleLinear()
-                    .domain([0, 10])
-                    .range([height - marginBottom, marginTop]);
-            } else {
-                y = d3.scaleLinear()
-                    .domain([0, d3.max(valuesCombinded, function (values) {
-                        return d3.max(values, function (d) { return d.value })
-                    })])
-                    .range([height - marginBottom, marginTop]);
             }
 
             lineUnit.text(unitText)
@@ -563,18 +629,63 @@
                     d3.select(".color-line-chart-" + i).remove()
                 }
             }
+
+            for (let i = 0; i < 3; i++) {
+                let circleGroup = svg.select(".circle-group-" + i);
+                if (circleGroup.empty()) {
+                    circleGroup = svg.append("g")
+                        .attr("class", "circle-group-" + i);
+                }
+
+                var points = []
+
+                if (i < currentGroup["data"].length) {
+                    points = valuesCombinded[i]
+                }
+
+                let circles = circleGroup.selectAll("circle")
+                    .data(points);
+
+                circles.enter()
+                    .append("circle")
+                    .attr("r", 5)
+                    .attr("fill", colors[i])
+                    .attr("stroke", "black")
+                    .merge(circles)
+                    .attr("cx", d => x(d.year))
+                    .attr("cy", d => y(d.value))
+                    .style("display", "none")
+                    .style("cursor", "context-menu")
+                    .on("mouseover", function (event, d) {
+                        d3.select("#lineMouseText")
+                            .style("left", (event.pageX + 5) + "px")
+                            .style("top", (event.pageY - 35) + "px")
+                            .style("opacity", "1")
+                            .style("background-color", colors[i])
+                            .html(d.value);
+                    })
+                    .on("mouseout", function (event, d) {
+                        d3.select("#lineMouseText")
+                            .style("opacity", "0");
+                    });;
+
+                circles.exit().remove();
+            }
         }
 
         function selectCountry(element) {
             if (dataJson[this.id] != undefined) {
                 d3.select("#" + currentCountry).style("fill", "blue")
                 d3.select("#" + currentCountry + "_bar").style("fill", "blue")
+                var previousCurrentCountry = currentCountry
                 currentCountry = this.id
                 d3.select("#" + currentCountry).style("fill", "#DC3545")
                 d3.select("#" + currentCountry + "_bar").style("fill", "#DC3545")
-                var euDataBtn = document.getElementById("euDataButton")
-                euDataBtn.classList.remove("btn-danger")
-                euDataBtn.classList.add("btn-outline-primary")
+                if (previousCurrentCountry === "EU27_2020") {
+                    var euDataBtn = document.getElementById("euDataButton")
+                    euDataBtn.classList.remove("btn-danger")
+                    euDataBtn.classList.add("btn-outline-primary")
+                }
                 updateLineChart()
             }
         }

@@ -135,3 +135,12 @@ h4 {
     pointer-events: none; 
     opacity: 0;
 }
+
+#lineMouseText {
+    position: absolute; 
+    height: 30px; 
+    padding: 3px;
+    color: white;
+    pointer-events: none; 
+    opacity: 0;
+}
