@@ -1,3 +1,7 @@
+html, body {
+    overflow: hidden;
+}
+
 .page {
     margin-top:20px;
     margin-left:10px;
@@ -17,6 +21,7 @@
     flex-direction: column;
     justify-content: start;
     align-items: start;
+    min-width: 70px;
 }
 
 .color-line-chart-0, .color-line-chart-1, .color-line-chart-2 {
@@ -136,11 +141,64 @@ h4 {
     opacity: 0;
 }
 
-#lineMouseText {
+#lineMouseText, #pieChartsMouseText {
     position: absolute; 
     height: 30px; 
     padding: 3px;
     color: white;
     pointer-events: none; 
     opacity: 0;
+}
+
+#pieChartsMouseText {
+    font-weight: bold;
+}
+
+.genderPieChart, .educationPieChart, .agePieChart {
+    margin-left: 60px;
+    margin-top: 20px;
+    display:flex;
+    flex-direction: column;
+}
+
+.gender-legend, .education-legend, .age-legend {
+    margin-top: 5px;
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap:20px;
+}
+
+#malePieLegend, #femalePieLegend, #noDataGenderPieLegend, 
+#primaryPieLegend, #secondaryPieLegend, #tertiaryPieLegend, #noDataEducationPieLegend,
+#youngPieLegend, #middlePieLegend, #oldPieLegend, #noDataAgePieLegend {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    font-weight: bold;
+    align-items: center;
+}
+
+#malePieLegendColor, #femalePieLegendColor, #noDataPieLegendColor, 
+#primaryPieLegendColor, #secondaryPieLegendColor, #tertiaryPieLegendColor,
+#youngPieLegendColor, #middlePieLegendColor, #oldPieLegendColor {
+    width:10px;
+    height:10px;
+}
+
+#malePieLegendColor, #primaryPieLegendColor, #youngPieLegendColor {
+    background-color: red;
+}
+
+#femalePieLegendColor, #secondaryPieLegendColor, #middlePieLegendColor {
+    background-color: green;
+}
+
+#tertiaryPieLegendColor, #oldPieLegendColor {
+    background-color: blue;
+}
+
+#noDataPieLegendColor {
+    background-color: grey;
 }

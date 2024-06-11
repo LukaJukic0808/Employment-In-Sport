@@ -87,15 +87,71 @@
             </div>
             <div class="line-chart-legend">
             </div>
-            <div class="graph2">
+            <div class="genderPieChart">
+                <div class="gender-pie"></div>
+                <div class="gender-legend">
+                    <div id="malePieLegend">
+                        <div id="malePieLegendColor"></div>
+                        <div>Male</div>
+                    </div>
+                    <div id="femalePieLegend">
+                        <div id="femalePieLegendColor"></div>
+                        <div>Female</div>
+                    </div>
+                    <div id="noDataGenderPieLegend">
+                        <div id="noDataPieLegendColor"></div>
+                        <div>No data</div>
+                    </div>
+                </div>
             </div>
-            <div class="graph3">
+            <div class="educationPieChart">
+                <div class="education-pie"></div>
+                <div class="education-legend">
+                    <div id="primaryPieLegend">
+                        <div id="primaryPieLegendColor"></div>
+                        <div>0-2</div>
+                    </div>
+                    <div id="secondaryPieLegend">
+                        <div id="secondaryPieLegendColor"></div>
+                        <div>3-4</div>
+                    </div>
+                    <div id="tertiaryPieLegend">
+                        <div id="tertiaryPieLegendColor"></div>
+                        <div>5-8</div>
+                    </div>
+                    <div id="noDataEducationPieLegend">
+                        <div id="noDataPieLegendColor"></div>
+                        <div>No data</div>
+                    </div>
+                </div>
+            </div>
+            <div class="agePieChart">
+                <div class="age-pie"></div>
+                <div class="age-legend">
+                    <div id="youngPieLegend">
+                        <div id="youngPieLegendColor"></div>
+                        <div>15-29</div>
+                    </div>
+                    <div id="middlePieLegend">
+                        <div id="middlePieLegendColor"></div>
+                        <div>30-64</div>
+                    </div>
+                    <div id="oldPieLegend">
+                        <div id="oldPieLegendColor"></div>
+                        <div>65+</div>
+                    </div>
+                    <div id="noDataAgePieLegend">
+                        <div id="noDataPieLegendColor"></div>
+                        <div>No data</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div id="mapMouseText">Placeholder</div>
     <div id="barMouseText">Placeholder</div>
     <div id="lineMouseText">Placeholder</div>
+    <div id="pieChartsMouseText">Placeholder</div>
     <script>
         var width = 650;
         var height = 550;
@@ -103,11 +159,15 @@
         var currentCountry = "FR";
         var mapMouseText = d3.select("#mapMouseText");
         var lineMouseText = d3.select("#lineMouseText");
+        var pieChartsMouseText = d3.select("#pieChartsMouseText");
         var currentSelectionFilter = "male"
         var currentSelectionUnit = "TH"
         var currentTitleString = "Male employment"
         var loadedBarChart = 0;
         var loadedLineChart = 0;
+        var loadedGenderPieChart = 0;
+        var loadedEducationPieChart = 0;
+        var loadedAgePieChart = 0;
         var slider = d3.select("#slider").on("input", updateYear)
         var year = d3.select("#year")
         var formatType;
@@ -165,6 +225,9 @@
                 dataJson = dataToLoad;
                 updateBarChart()
                 updateLineChart()
+                updateGenderPieChart()
+                updateEducationPieChart()
+                updateAgePieChart()
                 states.style("cursor", function (d) { return (dataJson[d.id] == undefined ? "default" : "pointer") });
             })
         });
@@ -173,6 +236,7 @@
             mapSvg.attr("transform", event.transform);
         }
 
+        // https://d3-graph-gallery.com/graph/barplot_horizontal.html
         function updateBarChart() {
             var svg, xAxis, yAxis, title, xAxisLabel;
             const width = 650;
@@ -364,6 +428,9 @@
                                     }
                                 }
                                 updateLineChart()
+                                updateGenderPieChart()
+                                updateEducationPieChart()
+                                updateAgePieChart()
                             }
                         })
                         .on("mouseover", function (event, d) {
@@ -411,6 +478,7 @@
             d3.select("#" + currentCountry + "_bar").style("fill", "#DC3545");
         }
 
+        // https://d3-graph-gallery.com/graph/line_basic.html
         function updateLineChart() {
             var svg, xAxis, yAxis, title, unitText, lineUnit;
             var groupIterator = 0;
@@ -673,6 +741,419 @@
             }
         }
 
+        // https://d3-graph-gallery.com/graph/pie_changeData.html
+        function updateGenderPieChart() {
+            var svg, arcs, title;
+            const width = 300;
+            const height = 260;
+            const marginTop = 40;
+            const radius = Math.max(width, height) / 2 - marginTop;
+
+            if (loadedGenderPieChart == 0) {
+                svg = d3.select(".gender-pie")
+                    .append("svg")
+                    .attr("id", "genderChart")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", `translate(${width / 2},${height / 2 + marginTop/2 - 5})`);
+
+                title = svg
+                    .append("text")
+                    .attr("class", "chart-title")
+                    .attr("transform", `translate(0,${-height / 2})`)
+                    .style("text-anchor", "middle")
+                    .attr("fill", "blue");
+
+                loadedGenderPieChart = 1;
+            } else {
+                svg = d3.select("#genderChart");
+                title = svg.select(".chart-title");
+            }
+
+            var maleValueToShow;
+            var femaleValueToShow;
+
+            if (currentSelectionUnit == "TH") {
+                maleValueToShow = dataJson[currentCountry][currentYear]["maleTH"]
+                femaleValueToShow = dataJson[currentCountry][currentYear]["femaleTH"]
+            } else {
+                var total = dataJson[currentCountry][currentYear]["femaleTH"] + dataJson[currentCountry][currentYear]["maleTH"]
+                maleValueToShow = (dataJson[currentCountry][currentYear]["maleTH"] / total * 100).toFixed(2);
+                femaleValueToShow = (dataJson[currentCountry][currentYear]["femaleTH"] / total * 100).toFixed(2);
+            }
+
+            var maleData = {
+                label: "Male", value: dataJson[currentCountry][currentYear]["maleTH"],
+                toShow: maleValueToShow, color: "red", hoverValue: true
+            }
+            var femaleData = {
+                label: "Female", value: dataJson[currentCountry][currentYear]["femaleTH"],
+                toShow: femaleValueToShow, color: "green", hoverValue: true
+            }
+            var noData = { label: "No data", value: 0, color: "grey", hoverValue: false }
+
+            var hasData = false;
+            var genderData = [];
+
+            if (maleData.value == null) {
+                d3.select("#malePieLegend").style("display", "none")
+                maleData.value = 0
+            } else {
+                hasData = true
+                d3.select("#malePieLegend").style("display", "flex")
+            }
+            genderData.push(maleData)
+
+            if (femaleData.value == null) {
+                d3.select("#femalePieLegend").style("display", "none")
+                femaleData.value = 0
+            } else {
+                hasData = true
+                d3.select("#femalePieLegend").style("display", "flex")
+            }
+            genderData.push(femaleData)
+
+            if (!hasData) {
+                d3.select("#noDataGenderPieLegend").style("display", "flex")
+                noData.value = 1
+            } else {
+                d3.select("#noDataGenderPieLegend").style("display", "none")
+            }
+
+            genderData.push(noData)
+
+            const pie = d3.pie().value(d => d.value)
+                .sort(function (a, b) { return d3.ascending(a.label, b.label) })
+                (genderData);
+            const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+            title.text(`Gender distribution in ${dataJson[currentCountry]["name"]}`);
+
+            const arcGroup = svg.selectAll(".arc").data(pie);
+
+            arcGroup.join(
+                enter => {
+                    const arcEnter = enter.append("g").attr("class", "arc");
+                    arcEnter.append("path")
+                        .attr("d", arc)
+                        .attr("fill", d => d.data.color)
+                        .each(function (d) { this._current = d; })
+                        .style("cursor", "context-menu")
+                        .on("mouseover", function (event, d) {
+                            pieChartsMouseText.transition().duration(200).style("opacity", 0.9);
+                            pieChartsMouseText.html(d.data.hoverValue ? `${d.data.label}: ${d.data.toShow}` : `No data`)
+                                .style("left", (event.pageX + 5) + "px")
+                                .style("top", (event.pageY - 28) + "px")
+                                .style("background-color", d.data.color);
+                        })
+                        .on("mouseout", function () {
+                            pieChartsMouseText.transition().duration(500).style("opacity", 0);
+                        });;
+                },
+                update => {
+                    update.select("path")
+                        .transition()
+                        .duration(750)
+                        .attrTween("d", function (d) {
+                            const i = d3.interpolate(this._current, d);
+                            this._current = i(0);
+                            return t => arc(i(t));
+                        })
+                        .attr("fill", d => d.data.color);
+                },
+                exit => exit.remove()
+            );
+        }
+
+        // https://d3-graph-gallery.com/graph/pie_changeData.html
+        function updateEducationPieChart() {
+            var svg, arcs, title;
+            const width = 300;
+            const height = 260;
+            const marginTop = 40;
+            const radius = Math.max(width, height) / 2 - marginTop;
+
+            if (loadedEducationPieChart == 0) {
+                svg = d3.select(".education-pie")
+                    .append("svg")
+                    .attr("id", "educationChart")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", `translate(${width / 2},${height / 2 + marginTop/2 - 5})`);
+
+                title = svg
+                    .append("text")
+                    .attr("class", "chart-title")
+                    .attr("transform", `translate(0,${-height / 2})`)
+                    .style("text-anchor", "middle")
+                    .attr("fill", "blue");
+
+                loadedEducationPieChart = 1;
+            } else {
+                svg = d3.select("#educationChart");
+                title = svg.select(".chart-title");
+            }
+
+            var primaryValueToShow;
+            var secondaryValueToShow;
+            var tertiaryValueToShow;
+
+            if (currentSelectionUnit == "TH") {
+                primaryValueToShow = dataJson[currentCountry][currentYear]["primaryTH"]
+                secondaryValueToShow = dataJson[currentCountry][currentYear]["secondaryTH"]
+                tertiaryValueToShow = dataJson[currentCountry][currentYear]["tertiaryTH"]
+            } else {
+                var total = dataJson[currentCountry][currentYear]["primaryTH"] + 
+                    dataJson[currentCountry][currentYear]["secondaryTH"] +                 
+                    dataJson[currentCountry][currentYear]["tertiaryTH"]
+
+                primaryValueToShow = (dataJson[currentCountry][currentYear]["primaryTH"] / total * 100).toFixed(2);
+                secondaryValueToShow = (dataJson[currentCountry][currentYear]["secondaryTH"] / total * 100).toFixed(2);
+                tertiaryValueToShow = (dataJson[currentCountry][currentYear]["tertiaryTH"] / total * 100).toFixed(2);
+            }
+
+            var primaryData = {
+                label: "0-2", value: dataJson[currentCountry][currentYear]["primaryTH"],
+                toShow: primaryValueToShow, color: "red", hoverValue: true
+            }
+            var secondaryData = {
+                label: "3-4", value: dataJson[currentCountry][currentYear]["secondaryTH"],
+                toShow: secondaryValueToShow, color: "green", hoverValue: true
+            }
+            var tertiaryData = {
+                label: "5-8", value: dataJson[currentCountry][currentYear]["tertiaryTH"],
+                toShow: tertiaryValueToShow, color: "blue", hoverValue: true
+            }
+            var noData = { label: "No data", value: 0, color: "grey", hoverValue: false }
+
+            var hasData = false;
+            var educationData = [];
+
+            if (primaryData.value == null) {
+                d3.select("#primaryPieLegend").style("display", "none")
+                primaryData.value = 0
+            } else {
+                hasData = true
+                d3.select("#primaryPieLegend").style("display", "flex")
+            }
+            educationData.push(primaryData)
+
+            if (secondaryData.value == null) {
+                d3.select("#secondaryPieLegend").style("display", "none")
+                secondaryData.value = 0
+            } else {
+                hasData = true
+                d3.select("#secondaryPieLegend").style("display", "flex")
+            }
+            educationData.push(secondaryData)
+
+            if (tertiaryData.value == null) {
+                d3.select("#tertiaryPieLegend").style("display", "none")
+                tertiaryData.value = 0
+            } else {
+                hasData = true
+                d3.select("#tertiaryPieLegend").style("display", "flex")
+            }
+            educationData.push(tertiaryData)
+
+            if (!hasData) {
+                d3.select("#noDataEducationPieLegend").style("display", "flex")
+                noData.value = 1
+            } else {
+                d3.select("#noDataEducationPieLegend").style("display", "none")
+            }
+
+            educationData.push(noData)
+
+            const pie = d3.pie().value(d => d.value)
+                .sort(function (a, b) { return d3.ascending(a.label, b.label) })
+                (educationData);
+            const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+            title.text(`Education distribution in ${dataJson[currentCountry]["name"]}`);
+
+            const arcGroup = svg.selectAll(".arc").data(pie);
+
+            arcGroup.join(
+                enter => {
+                    const arcEnter = enter.append("g").attr("class", "arc");
+                    arcEnter.append("path")
+                        .attr("d", arc)
+                        .attr("fill", d => d.data.color)
+                        .each(function (d) { this._current = d; })
+                        .style("cursor", "context-menu")
+                        .on("mouseover", function (event, d) {
+                            pieChartsMouseText.transition().duration(200).style("opacity", 0.9);
+                            pieChartsMouseText.html(d.data.hoverValue ? `${d.data.label}: ${d.data.toShow}` : `No data`)
+                                .style("left", (event.pageX + 5) + "px")
+                                .style("top", (event.pageY - 28) + "px")
+                                .style("background-color", d.data.color);
+                        })
+                        .on("mouseout", function () {
+                            pieChartsMouseText.transition().duration(500).style("opacity", 0);
+                        });;
+                },
+                update => {
+                    update.select("path")
+                        .transition()
+                        .duration(750)
+                        .attrTween("d", function (d) {
+                            const i = d3.interpolate(this._current, d);
+                            this._current = i(0);
+                            return t => arc(i(t));
+                        })
+                        .attr("fill", d => d.data.color);
+                },
+                exit => exit.remove()
+            );
+        }
+
+        // https://d3-graph-gallery.com/graph/pie_changeData.html
+        function updateAgePieChart() {
+            var svg, arcs, title;
+            const width = 300;
+            const height = 260;
+            const marginTop = 40;
+            const radius = Math.max(width, height) / 2 - marginTop;
+
+            if (loadedAgePieChart == 0) {
+                svg = d3.select(".age-pie")
+                    .append("svg")
+                    .attr("id", "ageChart")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", `translate(${width / 2},${height / 2 + marginTop/2 - 5})`);
+
+                title = svg
+                    .append("text")
+                    .attr("class", "chart-title")
+                    .attr("transform", `translate(0,${-height / 2})`)
+                    .style("text-anchor", "middle")
+                    .attr("fill", "blue");
+
+                loadedAgePieChart = 1;
+            } else {
+                svg = d3.select("#ageChart");
+                title = svg.select(".chart-title");
+            }
+
+            var youngValueToShow;
+            var middleValueToShow;
+            var oldValueToShow;
+
+            if (currentSelectionUnit == "TH") {
+                youngValueToShow = dataJson[currentCountry][currentYear]["youngTH"]
+                middleValueToShow = dataJson[currentCountry][currentYear]["middleTH"]
+                oldValueToShow = dataJson[currentCountry][currentYear]["oldTH"]
+            } else {
+                var total = dataJson[currentCountry][currentYear]["youngTH"] + 
+                    dataJson[currentCountry][currentYear]["middleTH"] +                 
+                    dataJson[currentCountry][currentYear]["oldTH"]
+
+                youngValueToShow = (dataJson[currentCountry][currentYear]["youngTH"] / total * 100).toFixed(2);
+                middleValueToShow = (dataJson[currentCountry][currentYear]["middleTH"] / total * 100).toFixed(2);
+                oldValueToShow = (dataJson[currentCountry][currentYear]["oldTH"] / total * 100).toFixed(2);
+            }
+
+            var youngData = {
+                label: "15-29", value: dataJson[currentCountry][currentYear]["youngTH"],
+                toShow: youngValueToShow, color: "red", hoverValue: true
+            }
+            var middleData = {
+                label: "30-64", value: dataJson[currentCountry][currentYear]["middleTH"],
+                toShow: middleValueToShow, color: "green", hoverValue: true
+            }
+            var oldData = {
+                label: "65+", value: dataJson[currentCountry][currentYear]["oldTH"],
+                toShow: oldValueToShow, color: "blue", hoverValue: true
+            }
+            var noData = { label: "No data", value: 0, color: "grey", hoverValue: false }
+
+            var hasData = false;
+            var ageData = [];
+
+            if (youngData.value == null) {
+                d3.select("#youngPieLegend").style("display", "none")
+                youngData.value = 0
+            } else {
+                hasData = true
+                d3.select("#youngPieLegend").style("display", "flex")
+            }
+            ageData.push(youngData)
+
+            if (middleData.value == null) {
+                d3.select("#middlePieLegend").style("display", "none")
+                middleData.value = 0
+            } else {
+                hasData = true
+                d3.select("#middlePieLegend").style("display", "flex")
+            }
+            ageData.push(middleData)
+
+            if (oldData.value == null) {
+                d3.select("#oldPieLegend").style("display", "none")
+                oldData.value = 0
+            } else {
+                hasData = true
+                d3.select("#oldPieLegend").style("display", "flex")
+            }
+            ageData.push(oldData)
+
+            if (!hasData) {
+                d3.select("#noDataAgePieLegend").style("display", "flex")
+                noData.value = 1
+            } else {
+                d3.select("#noDataAgePieLegend").style("display", "none")
+            }
+
+            ageData.push(noData)
+
+            const pie = d3.pie().value(d => d.value)
+                .sort(function (a, b) { return d3.ascending(a.label, b.label) })
+                (ageData);
+            const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+            title.text(`Age distribution in ${dataJson[currentCountry]["name"]}`);
+
+            const arcGroup = svg.selectAll(".arc").data(pie);
+
+            arcGroup.join(
+                enter => {
+                    const arcEnter = enter.append("g").attr("class", "arc");
+                    arcEnter.append("path")
+                        .attr("d", arc)
+                        .attr("fill", d => d.data.color)
+                        .each(function (d) { this._current = d; })
+                        .style("cursor", "context-menu")
+                        .on("mouseover", function (event, d) {
+                            pieChartsMouseText.transition().duration(200).style("opacity", 0.9);
+                            pieChartsMouseText.html(d.data.hoverValue ? `${d.data.label}: ${d.data.toShow}` : `No data`)
+                                .style("left", (event.pageX + 5) + "px")
+                                .style("top", (event.pageY - 28) + "px")
+                                .style("background-color", d.data.color);
+                        })
+                        .on("mouseout", function () {
+                            pieChartsMouseText.transition().duration(500).style("opacity", 0);
+                        });;
+                },
+                update => {
+                    update.select("path")
+                        .transition()
+                        .duration(750)
+                        .attrTween("d", function (d) {
+                            const i = d3.interpolate(this._current, d);
+                            this._current = i(0);
+                            return t => arc(i(t));
+                        })
+                        .attr("fill", d => d.data.color);
+                },
+                exit => exit.remove()
+            );
+        }
+
         function selectCountry(element) {
             if (dataJson[this.id] != undefined) {
                 d3.select("#" + currentCountry).style("fill", "blue")
@@ -687,6 +1168,9 @@
                     euDataBtn.classList.add("btn-outline-primary")
                 }
                 updateLineChart()
+                updateGenderPieChart()
+                updateEducationPieChart()
+                updateAgePieChart()
             }
         }
 
@@ -748,12 +1232,16 @@
             currentSelectionUnit = element.id
             updateBarChart();
             updateLineChart();
+            updateGenderPieChart();
+            updateEducationPieChart();
+            updateAgePieChart()
         }
 
         var intervalId;
         var isPlaying = false;
         var playPauseButton = d3.select("#play-pause-button");
 
+        // https://gist.github.com/officeofjane/47d2b0bfeecfcb41d2212d06d095c763#file-index-html
         playPauseButton.on("click", function () {
             if (isPlaying) {
                 clearInterval(intervalId);
@@ -779,6 +1267,9 @@
             year.text(this.value)
             currentYear = this.value
             updateBarChart();
+            updateGenderPieChart()
+            updateEducationPieChart()
+            updateAgePieChart()
         }
 
         function onEUDataClick(element) {
@@ -789,6 +1280,9 @@
             currentCountry = "EU27_2020"
             d3.select("#" + currentCountry + "_bar").style("fill", "#DC3545")
             updateLineChart()
+            updateGenderPieChart()
+            updateEducationPieChart()
+            updateAgePieChart()
         }
 
         function showInfo(event) {
