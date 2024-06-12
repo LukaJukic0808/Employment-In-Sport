@@ -1,0 +1,5 @@
+1. Open this project in VS Code
+2. Open visualization.html file
+3. Install Live Server Extension for VS Code (if necessary)
+4. Click "Go Live" at the bottom right of the screen
+5. Visualization is visible in your browser
