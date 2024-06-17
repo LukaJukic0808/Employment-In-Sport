@@ -409,7 +409,7 @@
                         })
                         .on("click", function (event, d) {
                             var selectedBarCountry = this.id.slice(0, 2)
-                            if (!(selectedBarCountry === currentCountry.slice(0, 2))) {
+                            if (!(selectedBarCountry === currentCountry)) {
                                 d3.select("#" + currentCountry).style("fill", "blue")
                                 d3.select("#" + currentCountry + "_bar").style("fill", "blue")
                                 if (selectedBarCountry === "EU") {
@@ -551,10 +551,6 @@
                 yAxis = svg.append("g")
                     .attr("transform", `translate(${marginLeft},0)`)
                     .attr("class", "line-y-axis")
-                    .call(g => g.select(".domain").remove())
-                    .call(g => g.selectAll(".tick line").clone()
-                        .attr("x2", width - marginLeft - marginRight)
-                        .attr("stroke-opacity", 0.1))
 
                 unit = yAxis.call(g => g.append("text")
                     .attr("x", -(marginLeft - 10))
@@ -666,7 +662,7 @@
                 .attr("stroke", "#000000")
                 .attr("stroke-opacity", 0.25)
 
-            xAxis.call(d3.axisBottom(x).ticks(width / 80).tickFormat(d3.format(".4")));
+            xAxis.call(d3.axisBottom(x).tickFormat(d3.format(".4")));
 
             yAxis.call(d3.axisLeft(y).ticks(height / 40).tickFormat(d3.format(formatType)))
 
